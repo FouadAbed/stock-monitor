@@ -5,23 +5,24 @@ url = "https://www.auchan.fr/qilive-climatiseur-portable-q-6923-blanc/pr-C176967
 
 r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
 
-print(r.status_code)
+html = r.text
 
-# Sauvegarde le HTML
-with open("page.html", "w", encoding="utf-8") as f:
-    f.write(r.text)
+print("HTTP :", r.status_code)
 
-print("Longueur :", len(r.text))
-
-# Cherche quelques mots intéressants
-for mot in [
+# Cherche les lignes qui parlent de disponibilité
+mots = [
     "availability",
+    "Available",
+    "InStock",
+    "OutOfStock",
     "stock",
-    "dispon",
-    "pickup",
-    "delivery",
-    "product",
-    "__NEXT_DATA__",
-    "application/ld+json",
-]:
-    print(mot, "=>", mot.lower() in r.text.lower())
+    "dispo",
+    "rupture",
+]
+
+for mot in mots:
+    print(f"\n===== {mot} =====")
+    for m in re.finditer(mot, html, re.IGNORECASE):
+        debut = max(0, m.start() - 120)
+        fin = min(len(html), m.end() + 120)
+        print(html[debut:fin].replace("\n", " "))
