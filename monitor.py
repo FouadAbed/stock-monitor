@@ -1,19 +1,24 @@
-import requests
+import os
+import smtplib
+from email.mime.text import MIMEText
 
-URL = "https://www.auchan.fr/qilive-climatiseur-portable-q-6923-blanc/pr-C1769677"
+sender = os.environ["EMAIL_ADDRESS"]
+password = os.environ["EMAIL_PASSWORD"]
+receiver = os.environ["EMAIL_TO"]
 
-headers = {
-    "User-Agent": "Mozilla/5.0"
-}
+msg = MIMEText(
+    """Si tu reçois ce message, c'est que GitHub Actions peut envoyer des e-mails avec Gmail.
 
-r = requests.get(URL, headers=headers)
-html = r.text
+Le système est prêt.
+"""
+)
 
-if 'content="https://schema.org/OutOfStock"' in html:
-    print("❌ Produit indisponible")
-elif '"status":false' in html:
-    print("❌ Produit indisponible")
-elif 'data-stock="0"' in html:
-    print("❌ Produit indisponible")
-else:
-    print("✅ PRODUIT DISPONIBLE")
+msg["Subject"] = "✅ Test GitHub Actions"
+msg["From"] = sender
+msg["To"] = receiver
+
+with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+    smtp.login(sender, password)
+    smtp.send_message(msg)
+
+print("✅ Mail envoyé avec succès")
